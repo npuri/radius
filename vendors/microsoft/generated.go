@@ -1267,7 +1267,7 @@ func MSCHAPMPPEKeys_GetString(p *radius.Packet) (value string) {
 func MSCHAPMPPEKeys_Gets(p *radius.Packet) (values [][]byte, err error) {
 	var i []byte
 	for _, attr := range _Microsoft_GetsVendor(p, 12) {
-		i, err = radius.UserPassword(attr, p.Secret, p.Authenticator[:])
+		i, err = radius.UserPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err == nil && len(i) != 24 {
 			err = errors.New("invalid value length")
 		}
@@ -1283,7 +1283,7 @@ func MSCHAPMPPEKeys_GetStrings(p *radius.Packet) (values []string, err error) {
 	var i string
 	for _, attr := range _Microsoft_GetsVendor(p, 12) {
 		var up []byte
-		up, err = radius.UserPassword(attr, p.Secret, p.Authenticator[:])
+		up, err = radius.UserPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err == nil {
 			i = string(up)
 		}
@@ -1304,7 +1304,7 @@ func MSCHAPMPPEKeys_Lookup(p *radius.Packet) (value []byte, err error) {
 		err = radius.ErrNoAttribute
 		return
 	}
-	value, err = radius.UserPassword(a, p.Secret, p.Authenticator[:])
+	value, err = radius.UserPassword(a, p.Secret, p.DecryptAuthenticator[:])
 	if err == nil && len(value) != 24 {
 		err = errors.New("invalid value length")
 	}
@@ -1582,7 +1582,7 @@ func MSMPPESendKey_GetString(p *radius.Packet) (value string) {
 func MSMPPESendKey_Gets(p *radius.Packet) (values [][]byte, err error) {
 	var i []byte
 	for _, attr := range _Microsoft_GetsVendor(p, 16) {
-		i, _, err = radius.TunnelPassword(attr, p.Secret, p.Authenticator[:])
+		i, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err != nil {
 			return
 		}
@@ -1595,7 +1595,7 @@ func MSMPPESendKey_GetStrings(p *radius.Packet) (values []string, err error) {
 	var i string
 	for _, attr := range _Microsoft_GetsVendor(p, 16) {
 		var up []byte
-		up, _, err = radius.TunnelPassword(attr, p.Secret, p.Authenticator[:])
+		up, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err == nil {
 			i = string(up)
 		}
@@ -1613,7 +1613,7 @@ func MSMPPESendKey_Lookup(p *radius.Packet) (value []byte, err error) {
 		err = radius.ErrNoAttribute
 		return
 	}
-	value, _, err = radius.TunnelPassword(a, p.Secret, p.Authenticator[:])
+	value, _, err = radius.TunnelPassword(a, p.Secret, p.DecryptAuthenticator[:])
 	return
 }
 
@@ -1708,7 +1708,7 @@ func MSMPPERecvKey_GetString(p *radius.Packet) (value string) {
 func MSMPPERecvKey_Gets(p *radius.Packet) (values [][]byte, err error) {
 	var i []byte
 	for _, attr := range _Microsoft_GetsVendor(p, 17) {
-		i, _, err = radius.TunnelPassword(attr, p.Secret, p.Authenticator[:])
+		i, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err != nil {
 			return
 		}
@@ -1721,7 +1721,7 @@ func MSMPPERecvKey_GetStrings(p *radius.Packet) (values []string, err error) {
 	var i string
 	for _, attr := range _Microsoft_GetsVendor(p, 17) {
 		var up []byte
-		up, _, err = radius.TunnelPassword(attr, p.Secret, p.Authenticator[:])
+		up, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err == nil {
 			i = string(up)
 		}
@@ -1739,7 +1739,7 @@ func MSMPPERecvKey_Lookup(p *radius.Packet) (value []byte, err error) {
 		err = radius.ErrNoAttribute
 		return
 	}
-	value, _, err = radius.TunnelPassword(a, p.Secret, p.Authenticator[:])
+	value, _, err = radius.TunnelPassword(a, p.Secret, p.DecryptAuthenticator[:])
 	return
 }
 

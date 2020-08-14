@@ -586,7 +586,7 @@ func TunnelPassword_Gets(p *radius.Packet) (tags []byte, values [][]byte, err er
 			tag = attr[0]
 			attr = attr[1:]
 		}
-		i, _, err = radius.TunnelPassword(attr, p.Secret, p.Authenticator[:])
+		i, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err != nil {
 			return
 		}
@@ -609,7 +609,7 @@ func TunnelPassword_GetStrings(p *radius.Packet) (tags []byte, values []string, 
 			attr = attr[1:]
 		}
 		var up []byte
-		up, _, err = radius.TunnelPassword(attr, p.Secret, p.Authenticator[:])
+		up, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])
 		if err == nil {
 			i = string(up)
 		}
@@ -632,7 +632,7 @@ func TunnelPassword_Lookup(p *radius.Packet) (tag byte, value []byte, err error)
 		tag = a[0]
 		a = a[1:]
 	}
-	value, _, err = radius.TunnelPassword(a, p.Secret, p.Authenticator[:])
+	value, _, err = radius.TunnelPassword(a, p.Secret, p.DecryptAuthenticator[:])
 	return
 }
 

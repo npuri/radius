@@ -13,10 +13,11 @@ const MaxPacketLength = 4096
 
 // Packet is a RADIUS packet.
 type Packet struct {
-	Code          Code
-	Identifier    byte
-	Authenticator [16]byte
-	Secret        []byte
+	Code                 Code
+	Identifier           byte
+	Authenticator        [16]byte
+	DecryptAuthenticator [16]byte
+	Secret               []byte
 	Attributes
 }
 
@@ -42,7 +43,7 @@ func New(code Code, secret []byte) *Packet {
 
 // Parse parses an encoded RADIUS packet b. An error is returned if the packet
 // is malformed.
-func Parse(b, secret []byte) (*Packet, error) {
+func Parse(b []byte, decryptAuthenticator []byte, secret []byte) (*Packet, error) {
 	if len(b) < 20 {
 		return nil, errors.New("radius: packet not at least 20 bytes long")
 	}
@@ -50,6 +51,10 @@ func Parse(b, secret []byte) (*Packet, error) {
 	length := int(binary.BigEndian.Uint16(b[2:4]))
 	if length < 20 || length > MaxPacketLength || len(b) < length {
 		return nil, errors.New("radius: invalid packet length")
+	}
+
+	if len(decryptAuthenticator) != 0 && len(decryptAuthenticator) != 16 {
+		return nil, errors.New("decryptAuthenticator has invalid length")
 	}
 
 	attrs, err := ParseAttributes(b[20:length])
@@ -63,6 +68,7 @@ func Parse(b, secret []byte) (*Packet, error) {
 		Secret:     secret,
 		Attributes: attrs,
 	}
+	copy(packet.DecryptAuthenticator[:], decryptAuthenticator)
 	copy(packet.Authenticator[:], b[4:20])
 	return packet, nil
 }

@@ -108,7 +108,7 @@ func (c *Client) Exchange(ctx context.Context, packet *Packet, addr string) (*Pa
 			return nil, err
 		}
 
-		received, err := Parse(incoming[:n], packet.Secret)
+		received, err := Parse(incoming[:n], packet.Authenticator[:], packet.Secret)
 		if err != nil {
 			packetErrorCount++
 			if c.MaxPacketErrors > 0 && packetErrorCount >= c.MaxPacketErrors {
