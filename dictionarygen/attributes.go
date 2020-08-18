@@ -29,7 +29,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 	}
 	p(w, `	var a radius.Attribute`)
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
-		p(w, `	a, err = radius.NewUserPassword(value, p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewUserPassword(value, p.Secret, p.CryptoAuthenticator[:])`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
 		p(w, `	var salt [2]byte`)
 		p(w, `	_, err = rand.Read(salt[:])`)
@@ -37,7 +37,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 		p(w, `		return`)
 		p(w, `	}`)
 		p(w, `	salt[0] |= 1 << 7`) // RFC 2868 § 3.5
-		p(w, `	a, err = radius.NewTunnelPassword(value, salt[:], p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewTunnelPassword(value, salt[:], p.Secret, p.CryptoAuthenticator[:])`)
 	} else {
 		p(w, `	a, err = radius.NewBytes(value)`)
 	}
@@ -71,7 +71,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 	}
 	p(w, `	var a radius.Attribute`)
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
-		p(w, `	a, err = radius.NewUserPassword([]byte(value), p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewUserPassword([]byte(value), p.Secret, p.CryptoAuthenticator[:])`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
 		p(w, `	var salt [2]byte`)
 		p(w, `	_, err = rand.Read(salt[:])`)
@@ -79,7 +79,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 		p(w, `		return`)
 		p(w, `	}`)
 		p(w, `	salt[0] |= 1 << 7`) // RFC 2868 § 3.5
-		p(w, `	a, err = radius.NewTunnelPassword([]byte(value), salt[:], p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewTunnelPassword([]byte(value), salt[:], p.Secret, p.CryptoAuthenticator[:])`)
 	} else {
 		p(w, `	a, err = radius.NewString(value)`)
 	}
@@ -145,9 +145,9 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 		p(w, `		}`)
 	}
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
-		p(w, `		i, err = radius.UserPassword(attr, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `		i, err = radius.UserPassword(attr, p.Secret, p.CryptoAuthenticator[:])`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
-		p(w, `		i, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `		i, _, err = radius.TunnelPassword(attr, p.Secret, p.CryptoAuthenticator[:])`)
 	} else {
 		p(w, `		i = radius.Bytes(attr)`)
 	}
@@ -192,13 +192,13 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 	}
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
 		p(w, `		var up []byte`)
-		p(w, `		up, err = radius.UserPassword(attr, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `		up, err = radius.UserPassword(attr, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `		if err == nil {`)
 		p(w, `			i = string(up)`)
 		p(w, `		}`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
 		p(w, `		var up []byte`)
-		p(w, `		up, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `		up, _, err = radius.TunnelPassword(attr, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `		if err == nil {`)
 		p(w, `			i = string(up)`)
 		p(w, `		}`)
@@ -243,9 +243,9 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 		p(w, `	}`)
 	}
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
-		p(w, `	value, err = radius.UserPassword(a, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `	value, err = radius.UserPassword(a, p.Secret, p.CryptoAuthenticator[:])`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
-		p(w, `	value, _, err = radius.TunnelPassword(a, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `	value, _, err = radius.TunnelPassword(a, p.Secret, p.CryptoAuthenticator[:])`)
 	} else {
 		p(w, `	value = radius.Bytes(a)`)
 	}
@@ -280,13 +280,13 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 	}
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
 		p(w, `	var b []byte`)
-		p(w, `	b, err = radius.UserPassword(a, p.Secret, p.Authenticator[:])`)
+		p(w, `	b, err = radius.UserPassword(a, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `	if err == nil {`)
 		p(w, `		value = string(b)`)
 		p(w, `	}`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
 		p(w, `		var b []byte`)
-		p(w, `		b, _, err = radius.TunnelPassword(a, p.Secret, p.Authenticator[:])`)
+		p(w, `		b, _, err = radius.TunnelPassword(a, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `		if err == nil {`)
 		p(w, `			value = string(b)`)
 		p(w, `		}`)
@@ -315,7 +315,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 	}
 	p(w, `	var a radius.Attribute`)
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
-		p(w, `	a, err = radius.NewUserPassword(value, p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewUserPassword(value, p.Secret, p.CryptoAuthenticator[:])`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
 		p(w, `	var salt [2]byte`)
 		p(w, `	_, err = rand.Read(salt[:])`)
@@ -323,7 +323,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 		p(w, `		return`)
 		p(w, `	}`)
 		p(w, `	salt[0] |= 1 << 7`) // RFC 2868 § 3.5
-		p(w, `	a, err = radius.NewTunnelPassword(value, salt[:], p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewTunnelPassword(value, salt[:], p.Secret, p.CryptoAuthenticator[:])`)
 	} else {
 		p(w, `	a, err = radius.NewBytes(value)`)
 	}
@@ -357,7 +357,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 	}
 	p(w, `	var a radius.Attribute`)
 	if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptUserPassword {
-		p(w, `	a, err = radius.NewUserPassword([]byte(value), p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewUserPassword([]byte(value), p.Secret, p.CryptoAuthenticator[:])`)
 	} else if attr.FlagEncrypt.Valid && attr.FlagEncrypt.Int == dictionary.EncryptTunnelPassword {
 		p(w, `	var salt [2]byte`)
 		p(w, `	_, err = rand.Read(salt[:])`)
@@ -365,7 +365,7 @@ func (g *Generator) genAttributeStringOctets(w io.Writer, attr *dictionary.Attri
 		p(w, `		return`)
 		p(w, `	}`)
 		p(w, `	salt[0] |= 1 << 7`) // RFC 2868 § 3.5
-		p(w, `	a, err = radius.NewTunnelPassword([]byte(value), salt[:], p.Secret, p.Authenticator[:])`)
+		p(w, `	a, err = radius.NewTunnelPassword([]byte(value), salt[:], p.Secret, p.CryptoAuthenticator[:])`)
 	} else {
 		p(w, `	a, err = radius.NewString(value)`)
 	}
@@ -1145,12 +1145,12 @@ func genEncryptAttribute(w io.Writer, encryptFlag dictionary.IntFlag) {
 
 func genDecryptAttribute(w io.Writer, encryptFlag dictionary.IntFlag) {
 	if encryptFlag.Valid && encryptFlag.Int == dictionary.EncryptUserPassword {
-		p(w, `	a, err = radius.UserPassword(a, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `	a, err = radius.UserPassword(a, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `	if err != nil {`)
 		p(w, `		return`)
 		p(w, `	}`)
 	} else if encryptFlag.Valid && encryptFlag.Int == dictionary.EncryptTunnelPassword {
-		p(w, `	a, _, err = radius.TunnelPassword(a, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `	a, _, err = radius.TunnelPassword(a, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `	if err != nil {`)
 		p(w, `		return`)
 		p(w, `	}`)
@@ -1159,12 +1159,12 @@ func genDecryptAttribute(w io.Writer, encryptFlag dictionary.IntFlag) {
 
 func genDecryptAttributes(w io.Writer, encryptFlag dictionary.IntFlag) {
 	if encryptFlag.Valid && encryptFlag.Int == dictionary.EncryptUserPassword {
-		p(w, `		attr, err = radius.UserPassword(attr, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `		attr, err = radius.UserPassword(attr, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `	    if err != nil {`)
 		p(w, `		    return`)
 		p(w, `	    }`)
 	} else if encryptFlag.Valid && encryptFlag.Int == dictionary.EncryptTunnelPassword {
-		p(w, `		attr, _, err = radius.TunnelPassword(attr, p.Secret, p.DecryptAuthenticator[:])`)
+		p(w, `		attr, _, err = radius.TunnelPassword(attr, p.Secret, p.CryptoAuthenticator[:])`)
 		p(w, `	    if err != nil {`)
 		p(w, `		    return`)
 		p(w, `	    }`)

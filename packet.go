@@ -13,11 +13,11 @@ const MaxPacketLength = 4096
 
 // Packet is a RADIUS packet.
 type Packet struct {
-	Code                 Code
-	Identifier           byte
-	Authenticator        [16]byte
-	DecryptAuthenticator [16]byte
-	Secret               []byte
+	Code                Code
+	Identifier          byte
+	Authenticator       [16]byte
+	CryptoAuthenticator [16]byte
+	Secret              []byte
 	Attributes
 }
 
@@ -38,12 +38,13 @@ func New(code Code, secret []byte) *Packet {
 		Secret:     secret,
 	}
 	copy(packet.Authenticator[:], buff[1:])
+	packet.CryptoAuthenticator = packet.Authenticator
 	return packet
 }
 
 // Parse parses an encoded RADIUS packet b. An error is returned if the packet
 // is malformed.
-func Parse(b []byte, decryptAuthenticator []byte, secret []byte) (*Packet, error) {
+func Parse(b []byte, cryptoAuthenticator []byte, secret []byte) (*Packet, error) {
 	if len(b) < 20 {
 		return nil, errors.New("radius: packet not at least 20 bytes long")
 	}
@@ -53,8 +54,8 @@ func Parse(b []byte, decryptAuthenticator []byte, secret []byte) (*Packet, error
 		return nil, errors.New("radius: invalid packet length")
 	}
 
-	if len(decryptAuthenticator) != 0 && len(decryptAuthenticator) != 16 {
-		return nil, errors.New("decryptAuthenticator has invalid length")
+	if len(cryptoAuthenticator) != 0 && len(cryptoAuthenticator) != 16 {
+		return nil, errors.New("cryptoAuthenticator has invalid length")
 	}
 
 	attrs, err := ParseAttributes(b[20:length])
@@ -68,7 +69,7 @@ func Parse(b []byte, decryptAuthenticator []byte, secret []byte) (*Packet, error
 		Secret:     secret,
 		Attributes: attrs,
 	}
-	copy(packet.DecryptAuthenticator[:], decryptAuthenticator)
+	copy(packet.CryptoAuthenticator[:], cryptoAuthenticator)
 	copy(packet.Authenticator[:], b[4:20])
 	return packet, nil
 }
@@ -81,7 +82,8 @@ func (p *Packet) Response(code Code) *Packet {
 		Identifier: p.Identifier,
 		Secret:     p.Secret,
 	}
-	copy(q.Authenticator[:], p.Authenticator[:])
+	q.Authenticator = p.Authenticator
+	q.CryptoAuthenticator = p.Authenticator
 	return q
 }
 

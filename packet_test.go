@@ -26,6 +26,7 @@ func Test_RFC2865_7_1(t *testing.T) {
 	}
 
 	p, err := radius.Parse(request, nil, secret)
+	p.CryptoAuthenticator = p.Authenticator
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -238,7 +239,7 @@ func TestPasswords(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		q, err := radius.Parse(b, nil, secret)
+		q, err := radius.Parse(b, r.CryptoAuthenticator[:], secret)
 		if err != nil {
 			t.Fatal(err)
 		}
