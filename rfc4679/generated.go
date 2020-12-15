@@ -90,11 +90,13 @@ func _ADSLForum_SetVendor(p *radius.Packet, typ byte, attr radius.Attribute) (er
 		for j := 0; len(vsa[j:]) >= 3; {
 			vsaTyp, vsaLen := vsa[0], vsa[1]
 			if int(vsaLen) > len(vsa[j:]) || vsaLen < 3 {
-				i++
 				break
 			}
 			if vsaTyp == typ {
 				vsa = append(vsa[:j], vsa[j+int(vsaLen):]...)
+			}
+			if int(vsaLen) >= len(vsa[j:]) {
+				break
 			}
 			j += int(vsaLen)
 		}
@@ -102,7 +104,8 @@ func _ADSLForum_SetVendor(p *radius.Packet, typ byte, attr radius.Attribute) (er
 			copy(avp.Attribute[4:], vsa)
 			i++
 		} else {
-			p.Attributes = append(p.Attributes[:i], p.Attributes[i+i:]...)
+			p.Attributes = append(p.Attributes[:i], p.Attributes[i+1:]...)
+			i++
 		}
 	}
 	return _ADSLForum_AddVendor(p, typ, attr)
