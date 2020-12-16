@@ -105,7 +105,7 @@ func (g *Generator) genVendor(w io.Writer, vendor *dictionary.Vendor) {
 	p(w, `			i++`)
 	p(w, `		} else {`)
 	p(w, `			p.Attributes = append(p.Attributes[:i], p.Attributes[i+1:]...)`)
-	p(2, `			i++`)
+	p(w, `			i++`)
 	p(w, `		}`)
 	p(w, `	}`)
 	p(w, `	return _`, ident, `_AddVendor(p, typ, attr)`)

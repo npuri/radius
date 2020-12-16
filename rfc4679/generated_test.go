@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// _ADSLForum_SetVendor
 func TestSetVendor(t *testing.T) {
 	a := assert.New(t)
 	packet := radius.New(radius.CodeAccessAccept, []byte("secret"))
