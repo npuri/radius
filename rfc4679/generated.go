@@ -87,11 +87,6 @@ func _ADSLForum_SetVendor(p *radius.Packet, typ byte, attr radius.Attribute) (er
 			i++
 			continue
 		}
-		/*
-			attr1 := []byte{1, 4, 6}
-			attr2 := []byte{2, 3, 7}
-			vsa := []byte{1, 4, 6, 2, 3, 7}
-		*/
 		for j := 0; len(vsa[j:]) >= 3; {
 			vsaTyp, vsaLen := vsa[0], vsa[1]
 			if int(vsaLen) > len(vsa[j:]) || vsaLen < 3 {
