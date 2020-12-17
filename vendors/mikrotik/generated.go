@@ -91,11 +91,13 @@ func _Mikrotik_SetVendor(p *radius.Packet, typ byte, attr radius.Attribute) (err
 		for j := 0; len(vsa[j:]) >= 3; {
 			vsaTyp, vsaLen := vsa[0], vsa[1]
 			if int(vsaLen) > len(vsa[j:]) || vsaLen < 3 {
-				i++
 				break
 			}
 			if vsaTyp == typ {
 				vsa = append(vsa[:j], vsa[j+int(vsaLen):]...)
+			}
+			if int(vsaLen) >= len(vsa[j:]) {
+				break
 			}
 			j += int(vsaLen)
 		}
@@ -103,7 +105,8 @@ func _Mikrotik_SetVendor(p *radius.Packet, typ byte, attr radius.Attribute) (err
 			copy(avp.Attribute[4:], vsa)
 			i++
 		} else {
-			p.Attributes = append(p.Attributes[:i], p.Attributes[i+i:]...)
+			p.Attributes = append(p.Attributes[:i], p.Attributes[i+1:]...)
+			i++
 		}
 	}
 	return _Mikrotik_AddVendor(p, typ, attr)
@@ -1999,7 +2002,7 @@ func MikrotikDHCPOptionParamSTR1_Del(p *radius.Packet) {
 	_Mikrotik_DelVendor(p, 24)
 }
 
-func MikortikDHCPOptionParamSTR2_Add(p *radius.Packet, value []byte) (err error) {
+func MikrotikDHCPOptionParamSTR2_Add(p *radius.Packet, value []byte) (err error) {
 	var a radius.Attribute
 	a, err = radius.NewBytes(value)
 	if err != nil {
@@ -2008,7 +2011,7 @@ func MikortikDHCPOptionParamSTR2_Add(p *radius.Packet, value []byte) (err error)
 	return _Mikrotik_AddVendor(p, 25, a)
 }
 
-func MikortikDHCPOptionParamSTR2_AddString(p *radius.Packet, value string) (err error) {
+func MikrotikDHCPOptionParamSTR2_AddString(p *radius.Packet, value string) (err error) {
 	var a radius.Attribute
 	a, err = radius.NewString(value)
 	if err != nil {
@@ -2017,17 +2020,17 @@ func MikortikDHCPOptionParamSTR2_AddString(p *radius.Packet, value string) (err 
 	return _Mikrotik_AddVendor(p, 25, a)
 }
 
-func MikortikDHCPOptionParamSTR2_Get(p *radius.Packet) (value []byte) {
-	value, _ = MikortikDHCPOptionParamSTR2_Lookup(p)
+func MikrotikDHCPOptionParamSTR2_Get(p *radius.Packet) (value []byte) {
+	value, _ = MikrotikDHCPOptionParamSTR2_Lookup(p)
 	return
 }
 
-func MikortikDHCPOptionParamSTR2_GetString(p *radius.Packet) (value string) {
-	value, _ = MikortikDHCPOptionParamSTR2_LookupString(p)
+func MikrotikDHCPOptionParamSTR2_GetString(p *radius.Packet) (value string) {
+	value, _ = MikrotikDHCPOptionParamSTR2_LookupString(p)
 	return
 }
 
-func MikortikDHCPOptionParamSTR2_Gets(p *radius.Packet) (values [][]byte, err error) {
+func MikrotikDHCPOptionParamSTR2_Gets(p *radius.Packet) (values [][]byte, err error) {
 	var i []byte
 	for _, attr := range _Mikrotik_GetsVendor(p, 25) {
 		i = radius.Bytes(attr)
@@ -2039,7 +2042,7 @@ func MikortikDHCPOptionParamSTR2_Gets(p *radius.Packet) (values [][]byte, err er
 	return
 }
 
-func MikortikDHCPOptionParamSTR2_GetStrings(p *radius.Packet) (values []string, err error) {
+func MikrotikDHCPOptionParamSTR2_GetStrings(p *radius.Packet) (values []string, err error) {
 	var i string
 	for _, attr := range _Mikrotik_GetsVendor(p, 25) {
 		i = radius.String(attr)
@@ -2051,7 +2054,7 @@ func MikortikDHCPOptionParamSTR2_GetStrings(p *radius.Packet) (values []string, 
 	return
 }
 
-func MikortikDHCPOptionParamSTR2_Lookup(p *radius.Packet) (value []byte, err error) {
+func MikrotikDHCPOptionParamSTR2_Lookup(p *radius.Packet) (value []byte, err error) {
 	a, ok := _Mikrotik_LookupVendor(p, 25)
 	if !ok {
 		err = radius.ErrNoAttribute
@@ -2061,7 +2064,7 @@ func MikortikDHCPOptionParamSTR2_Lookup(p *radius.Packet) (value []byte, err err
 	return
 }
 
-func MikortikDHCPOptionParamSTR2_LookupString(p *radius.Packet) (value string, err error) {
+func MikrotikDHCPOptionParamSTR2_LookupString(p *radius.Packet) (value string, err error) {
 	a, ok := _Mikrotik_LookupVendor(p, 25)
 	if !ok {
 		err = radius.ErrNoAttribute
@@ -2071,7 +2074,7 @@ func MikortikDHCPOptionParamSTR2_LookupString(p *radius.Packet) (value string, e
 	return
 }
 
-func MikortikDHCPOptionParamSTR2_Set(p *radius.Packet, value []byte) (err error) {
+func MikrotikDHCPOptionParamSTR2_Set(p *radius.Packet, value []byte) (err error) {
 	var a radius.Attribute
 	a, err = radius.NewBytes(value)
 	if err != nil {
@@ -2080,7 +2083,7 @@ func MikortikDHCPOptionParamSTR2_Set(p *radius.Packet, value []byte) (err error)
 	return _Mikrotik_SetVendor(p, 25, a)
 }
 
-func MikortikDHCPOptionParamSTR2_SetString(p *radius.Packet, value string) (err error) {
+func MikrotikDHCPOptionParamSTR2_SetString(p *radius.Packet, value string) (err error) {
 	var a radius.Attribute
 	a, err = radius.NewString(value)
 	if err != nil {
@@ -2089,7 +2092,7 @@ func MikortikDHCPOptionParamSTR2_SetString(p *radius.Packet, value string) (err 
 	return _Mikrotik_SetVendor(p, 25, a)
 }
 
-func MikortikDHCPOptionParamSTR2_Del(p *radius.Packet) {
+func MikrotikDHCPOptionParamSTR2_Del(p *radius.Packet) {
 	_Mikrotik_DelVendor(p, 25)
 }
 
