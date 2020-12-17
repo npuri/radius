@@ -75,7 +75,7 @@ func TestSetVendorGroupedVSAs(t *testing.T) {
 
 	packet := radius.New(radius.CodeAccessAccept, []byte("secret"))
 
-	groupedVSAs := radius.Attribute([]byte{1, 3, 1, 1, 3, 1})
+	groupedVSAs := radius.Attribute([]byte{1, 3, 1, 2, 3, 1})
 	groupedVendorVSAs, err := radius.NewVendorSpecific(_ADSLForum_VendorID, groupedVSAs)
 	a.Nil(err)
 	malformed := &radius.AVP{
@@ -92,7 +92,7 @@ func TestSetVendorGroupedVSAs(t *testing.T) {
 
 	adslAttribsType1 := _ADSLForum_GetsVendor(packet, 1)
 	a.Len(adslAttribsType1, 1)
-	a.Len(packet.Attributes, 1)
+	a.Len(packet.Attributes, 2)
 }
 
 func TestSetVendor(t *testing.T) {
