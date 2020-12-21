@@ -94,9 +94,7 @@ func _WISPr_SetVendor(p *radius.Packet, typ byte, attr radius.Attribute) (err er
 			}
 			if vsaTyp == typ {
 				vsa = append(vsa[:j], vsa[j+int(vsaLen):]...)
-			}
-			if int(vsaLen) >= len(vsa[j:]) {
-				break
+				continue
 			}
 			j += int(vsaLen)
 		}
