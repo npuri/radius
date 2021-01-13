@@ -49,7 +49,7 @@ func TestSetVendorGroupedMalformedVSAs(t *testing.T) {
 
 	packet := radius.New(radius.CodeAccessAccept, []byte("secret"))
 
-	malformedGrouped := radius.Attribute([]byte{1, 3, 1, 1, 255, 1})
+	malformedGrouped := radius.Attribute([]byte{ 1, 3, 'X' , 1, 255, 1})
 	malformedGroupedVendor, err := radius.NewVendorSpecific(_ADSLForum_VendorID, malformedGrouped)
 	a.Nil(err)
 	malformedGroupedAVP := &radius.AVP{
@@ -67,7 +67,11 @@ func TestSetVendorGroupedMalformedVSAs(t *testing.T) {
 
 	adslAttribsType1 := _ADSLForum_GetsVendor(packet, 1)
 	a.Len(adslAttribsType1, 1) // in the grouped VSAs the valid vsa is removed, the malformed one is not removed but it is not returned here as it is invalid
+
 	a.Len(packet.Attributes, 2)
+	for _,a := range packet.Attributes {
+		t.Logf("%+v",a)
+	}
 }
 
 func TestSetVendorGroupedVSAs(t *testing.T) {
@@ -154,4 +158,70 @@ func TestSetVendorNoVendorAttributes(t *testing.T) {
 	adslAttribs := _ADSLForum_GetsVendor(packet, 1)
 	a.Len(adslAttribs, 1)
 	a.Len(packet.Attributes, 1)
+}
+
+func TestHolger(t *testing.T) {
+	a := assert.New(t)
+
+	packet := radius.New(radius.CodeAccessAccept, []byte("secret"))
+
+	groupedVSAs := radius.Attribute([]byte{1, 3, 1,      2, 3, 'X'})
+	groupedVendorVSAs, err := radius.NewVendorSpecific(_ADSLForum_VendorID, groupedVSAs)
+	a.Nil(err)
+	malformed := &radius.AVP{
+		Type:      rfc2865.VendorSpecific_Type,
+		Attribute: groupedVendorVSAs,
+	}
+	packet.Attributes = append(packet.Attributes, malformed)
+
+	attr := radius.Attribute([]byte("asdf"))
+	err = _ADSLForum_SetVendor(packet, 2, attr)
+	a.Nil(err)
+	err = _ADSLForum_SetVendor(packet, 2, attr)
+	a.Nil(err)
+
+	adslAttribsType2 := _ADSLForum_GetsVendor(packet, 2)
+	a.Len(adslAttribsType2, 1) // only 1 time "asdf"
+	a.Len(packet.Attributes, 2) // "asdf" is appended as a non-grouped attribute
+	for _,a := range packet.Attributes {
+		t.Logf("%+v",a)
+	}
+}
+
+func TestHolger2(t *testing.T) {
+	a := assert.New(t)
+
+	packet := radius.New(radius.CodeAccessAccept, []byte("secret"))
+
+	unrelatedgroupedVSAs := radius.Attribute([]byte{99, 3, 'Z'})
+	unrelatedgroupedVendorVSAs, err := radius.NewVendorSpecific(_ADSLForum_VendorID, unrelatedgroupedVSAs)
+	a.Nil(err)
+	avpUnrelated := &radius.AVP{
+		Type:      rfc2865.VendorSpecific_Type,
+		Attribute: unrelatedgroupedVendorVSAs,
+	}
+	packet.Attributes = append(packet.Attributes, avpUnrelated)
+
+
+	groupedVSAs := radius.Attribute([]byte{1, 3, 'X'})
+	groupedVendorVSAs, err := radius.NewVendorSpecific(_ADSLForum_VendorID, groupedVSAs)
+	a.Nil(err)
+	malformed := &radius.AVP{
+		Type:      rfc2865.VendorSpecific_Type,
+		Attribute: groupedVendorVSAs,
+	}
+	packet.Attributes = append(packet.Attributes, malformed)
+	// add second time, create a duplicate VSA intentionally
+	packet.Attributes = append(packet.Attributes, malformed)
+
+	attr := radius.Attribute([]byte("asdf"))
+	err = _ADSLForum_SetVendor(packet, 1, attr)
+	a.Nil(err)
+
+	adslAttribsType1 := _ADSLForum_GetsVendor(packet, 1)
+	a.Len(adslAttribsType1, 1) // only 1 time "asdf"
+	a.Len(packet.Attributes, 2) // "asdf" is appended as a non-grouped attribute
+	for _,a := range packet.Attributes {
+		t.Logf("%+v",a)
+	}
 }
