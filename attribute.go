@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"math"
 	"net"
 	"strconv"
@@ -215,7 +214,6 @@ func NewUserPassword(plaintext, secret, requestAuthenticator []byte) (Attribute,
 
 	for i, b := range pt2[:16] {
 		enc[i] ^= b
-		fmt.Println("iteration over plaintext")
 	}
 
 	for i := 16; i < len(pt2); i += 16 {
